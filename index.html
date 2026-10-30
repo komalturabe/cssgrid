@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eef1e8">
+  <title>Elsewhere — a photo atlas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211d;
+      --muted: #65716a;
+      --paper: #eef1e8;
+      --accent: #e85d3f;
+      --gap: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background-color: var(--paper);
+      background-image: radial-gradient(#17211d12 0.7px, transparent 0.7px);
+      background-size: 7px 7px;
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    main {
+      width: min(1440px, 100% - 64px);
+      margin: 0 auto;
+      padding: 38px 0 56px;
+    }
+
+    .topline, .bottomline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font: 500 11px/1.4 "DM Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+    .topline p, .bottomline p { margin: 0; }
+    .issue { color: var(--muted); }
+
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 32px;
+      padding: 48px 0 30px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(44px, 7vw, 92px);
+      font-weight: 500;
+      line-height: 0.93;
+      letter-spacing: -0.055em;
+    }
+
+    h1 em {
+      color: var(--accent);
+      font-family: "Playfair Display", serif;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+    }
+
+    .intro {
+      max-width: 260px;
+      margin: 0 4px 5px 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: repeat(5, minmax(108px, 13vw));
+      grid-template-areas:
+        "one one one one one two two two three three three three"
+        "one one one one one two two two four four four four"
+        "five five five six six six six six four four four four"
+        "seven seven seven seven eight eight eight eight eight nine nine nine"
+        "seven seven seven seven eight eight eight eight eight nine nine nine";
+      gap: var(--gap);
+    }
+
+    .photo {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: #d3d9cf;
+      isolation: isolate;
+      cursor: zoom-in;
+    }
+
+    .photo:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+    .photo::after {
+      position: absolute;
+      z-index: 1;
+      inset: 45% 0 0;
+      background: linear-gradient(transparent, #101a18a6);
+      content: "";
+      pointer-events: none;
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform 650ms cubic-bezier(.2,.7,.2,1);
+    }
+
+    .photo:hover img { transform: scale(1.045); }
+    .photo-one { grid-area: one; }
+    .photo-two { grid-area: two; }
+    .photo-three { grid-area: three; }
+    .photo-four { grid-area: four; }
+    .photo-five { grid-area: five; }
+    .photo-six { grid-area: six; }
+    .photo-seven { grid-area: seven; }
+    .photo-eight { grid-area: eight; }
+    .photo-nine { grid-area: nine; }
+
+    .caption {
+      position: absolute;
+      z-index: 2;
+      right: 14px;
+      bottom: 13px;
+      left: 14px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 10px;
+      color: white;
+    }
+
+    .caption h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    .caption span {
+      flex: 0 0 auto;
+      font: 11px "DM Mono", monospace;
+      opacity: 0.85;
+    }
+
+    .bottomline {
+      padding-top: 20px;
+      color: var(--muted);
+    }
+
+    .bottomline strong { color: var(--ink); font-weight: 500; }
+
+    .lightbox {
+      position: fixed;
+      width: min(92vw, 1200px);
+      max-width: none;
+      max-height: 92vh;
+      padding: 0;
+      overflow: visible;
+      border: 0;
+      background: transparent;
+      color: white;
+    }
+
+    .lightbox::backdrop { background: #101714ed; backdrop-filter: blur(5px); }
+    .lightbox figure { margin: 0; }
+    .lightbox img { display: block; max-width: 100%; max-height: 78vh; margin: auto; object-fit: contain; }
+    .lightbox figcaption { padding-top: 12px; font-size: 14px; }
+
+    .lightbox-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 9px 13px;
+      border: 1px solid #ffffff80;
+      background: #101714a8;
+      color: white;
+      font: 500 11px "DM Mono", monospace;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    @media (min-width: 1500px) {
+      .gallery { grid-template-rows: repeat(5, 180px); }
+    }
+
+    @media (max-width: 760px) {
+      main { width: min(100% - 36px, 600px); padding-top: 24px; }
+      header { align-items: start; flex-direction: column; gap: 18px; padding: 42px 0 24px; }
+      .intro { max-width: 330px; }
+      .gallery {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-rows: repeat(6, minmax(120px, 23vw));
+        grid-template-areas:
+          "one one one one two two"
+          "one one one one two two"
+          "three three four four four four"
+          "five five five six six six"
+          "seven seven seven eight eight eight"
+          "seven seven seven nine nine nine";
+      }
+    }
+
+    @media (max-width: 480px) {
+      main { width: calc(100% - 28px); padding-top: 18px; }
+      .topline, .bottomline { font-size: 9px; }
+      .topline { align-items: start; }
+      .issue { text-align: right; }
+      header { padding-top: 38px; }
+      h1 { font-size: 54px; }
+      .gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: 190px 145px 155px 145px 190px 155px;
+        grid-template-areas:
+          "one one"
+          "two three"
+          "four four"
+          "five six"
+          "seven eight"
+          "nine nine";
+      }
+      .caption { right: 10px; bottom: 10px; left: 10px; }
+      .caption h2 { font-size: 13px; }
+      .caption span { font-size: 9px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topline">
+      <p class="brand"><span class="brand-mark" aria-hidden="true"></span> Elsewhere / visual atlas</p>
+      <p class="issue">Field notes no. 08 <span aria-hidden="true">·</span> 2026</p>
+    </div>
+
+    <header>
+      <h1>Somewhere<br><em>in between.</em></h1>
+      <p class="intro">A collection of quiet corners, long roads, and the places that stay with you.</p>
+    </header>
+
+    <section class="gallery" aria-label="Travel photography from around the world">
+      <article class="photo photo-one" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View Mirror Lake">
+        <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&amp;fit=crop&amp;w=1200&amp;q=85" alt="A still alpine lake reflecting forested mountains" fetchpriority="high">
+        <div class="caption"><h2>Mirror Lake</h2><span>46° 49′ N</span></div>
+      </article>
+      <article class="photo photo-two" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View Open Country">
+        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&amp;fit=crop&amp;w=800&amp;q=85" alt="Sunlit hills rolling into the distance">
+        <div class="caption"><h2>Open Country</h2><span>02</span></div>
+      </article>
+      <article class="photo photo-three" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View Blue Hour">
+        <img src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&amp;fit=crop&amp;w=800&amp;q=85" alt="Blue ocean waves moving toward the shore">
+        <div class="caption"><h2>Blue Hour</h2><span>03</span></div>
+      </article>
+      <article class="photo photo-four" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View High Pass">
+        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&amp;fit=crop&amp;w=1000&amp;q=85" alt="A winding trail through a dramatic mountain valley">
+        <div class="caption"><h2>High Pass</h2><span>04</span></div>
+      </article>
+      <article class="photo photo-five" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View First Light">
+        <img src="https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&amp;fit=crop&amp;w=800&amp;q=85" alt="First light spreading over a misty meadow">
+        <div class="caption"><h2>First Light</h2><span>05</span></div>
+      </article>
+      <article class="photo photo-six" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View Green Fields">
+        <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&amp;fit=crop&amp;w=900&amp;q=85" alt="Green fields under a broad, bright sky">
+        <div class="caption"><h2>Green Fields</h2><span>06</span></div>
+      </article>
+      <article class="photo photo-seven" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View Above the Clouds">
+        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&amp;fit=crop&amp;w=1000&amp;q=85" alt="Snow-covered peaks rising above a mountain range">
+        <div class="caption"><h2>Above the Clouds</h2><span>07</span></div>
+      </article>
+      <article class="photo photo-eight" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View Last Stop">
+        <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&amp;fit=crop&amp;w=1000&amp;q=85" alt="A sunlit landscape with distant hills and open sky">
+        <div class="caption"><h2>Last Stop</h2><span>08</span></div>
+      </article>
+      <article class="photo photo-nine" role="button" tabindex="0" aria-haspopup="dialog" aria-label="View Quiet Woods">
+        <img src="https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&amp;fit=crop&amp;w=800&amp;q=85" alt="Tall trees gathered in a quiet forest">
+        <div class="caption"><h2>Quiet Woods</h2><span>09</span></div>
+      </article>
+    </section>
+
+    <footer class="bottomline">
+      <p><strong>Collected slowly.</strong> Seen everywhere.</p>
+      <p>Swipe / scroll to wander <span aria-hidden="true">↓</span></p>
+    </footer>
+  </main>
+  <dialog class="lightbox" aria-label="Expanded photograph">
+    <button class="lightbox-close" type="button">Close</button>
+    <figure>
+      <img alt="">
+      <figcaption></figcaption>
+    </figure>
+  </dialog>
+  <script>
+    const gallery = document.querySelector(".gallery");
+    const lightbox = document.querySelector(".lightbox");
+    const lightboxImage = lightbox.querySelector("img");
+    const lightboxCaption = lightbox.querySelector("figcaption");
+    const closeButton = lightbox.querySelector(".lightbox-close");
+    let activePhoto;
+
+    function openPhoto(photo) {
+      const image = photo.querySelector("img");
+      activePhoto = photo;
+      lightboxImage.src = image.src;
+      lightboxImage.alt = image.alt;
+      lightboxCaption.textContent = photo.querySelector(".caption h2").textContent;
+      lightbox.showModal();
+      closeButton.focus();
+    }
+
+    gallery.addEventListener("click", (event) => {
+      const photo = event.target.closest(".photo");
+      if (photo) openPhoto(photo);
+    });
+
+    gallery.addEventListener("keydown", (event) => {
+      if (event.target.matches(".photo") && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        openPhoto(event.target);
+      }
+    });
+
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) lightbox.close();
+    });
+
+    lightbox.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        lightbox.close();
+      }
+    });
+
+    lightbox.addEventListener("close", () => activePhoto?.focus());
+    closeButton.addEventListener("click", () => lightbox.close());
+  </script>
+</body>
+</html>
+
